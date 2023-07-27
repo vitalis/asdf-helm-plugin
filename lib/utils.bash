@@ -231,6 +231,7 @@ install_version() {
 	local install_type=$2
 	local version=$3
 	local install_path=$4
+	local bin_install_path="${install_path}/bin"
 	local download_url archive_bin_path release_path
 
 	if [ "$install_type" != "version" ]; then
@@ -253,14 +254,14 @@ install_version() {
 	# esac
 
 	if ! eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin list" | sed 1d | grep -qs "${HELM_PLUGIN_NAME}"; then
-		mkdir -p "${install_path}"
-		pushd "${install_path}" >/dev/null || fail "Failed to pushd ${install_path}"
+		mkdir -p "${bin_install_path}"
+		pushd "${bin_install_path}" >/dev/null || fail "Failed to pushd ${bin_install_path}"
 
 		log "Downloading ${plugin_name} from ${download_url}"
-		curl "${curl_opts[@]}" -C - "${download_url}" | tar zx -O "${ARCHIVE_BIN_PATH}" >"${install_path}/${HELM_PLUGIN_NAME}"
-		chmod +x "${install_path}/${HELM_PLUGIN_NAME}"
+		curl "${curl_opts[@]}" -C - "${download_url}" | tar zx -O "${ARCHIVE_BIN_PATH}" >"${bin_install_path}/${HELM_PLUGIN_NAME}"
+		chmod +x "${bin_install_path}/${HELM_PLUGIN_NAME}"
 		generate_plugin_yaml "$@"
-    ln -s . "${release_path}"
+    ln -s "${install_path}" "${release_path}"
 		popd >/dev/null || fail "Failed to popd"
 		eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin install ${release_path}" || fail "Failed installing ${plugin_name}@${version}, rerun with ASDF_HELM_PLUGIN_DEBUG=1 for details"
 	else
