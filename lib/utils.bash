@@ -216,8 +216,9 @@ generate_plugin_yaml() {
 	local plugin_name=$1
 	local version=$3
 	local install_path=$4
+	local bin_install_path="${install_path}/bin"
 
-	cat >"${install_path}/plugin.yaml" <<END
+	cat >"${bin_install_path}/plugin.yaml" <<END
 name: "${HELM_PLUGIN_NAME}"
 version: "${version}"
 ignoreFlags: false
