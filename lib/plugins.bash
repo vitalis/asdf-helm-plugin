@@ -1,0 +1,6 @@
+declare 'gh_repo_helm_unittest=helm-unittest/helm-unittest'
+declare 'gh_repo_asdf_helm_plugin=helm-unittest/helm-unittest'
+declare 'archive_bin_path_helm_unittest=untt'
+declare 'archive_bin_path_asdf_helm_plugin=untt'
+declare 'release_url_scheme_helm_unittest=https://github.com/$GH_REPO/releases/download/v$version/$plugin_name-$OS-$ARCH-$version.tgz'
+declare 'release_url_scheme_asdf_helm_plugin=https://github.com/$GH_REPO/releases/download/v$version/$plugin_name-$OS-$ARCH-$version.tgz'
