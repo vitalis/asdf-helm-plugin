@@ -222,7 +222,7 @@ name: "${HELM_PLUGIN_NAME}"
 version: "${version}"
 ignoreFlags: false
 useTunnel: true
-command: "${plugin_name}"
+command: "${HELM_PLUGIN_NAME}"
 END
 }
 
@@ -246,7 +246,7 @@ install_version() {
 	verify_supported
 
 	download_url=$(get_download_url "$@")
-	release_path="${install_path}/release/${plugin_name}"
+	release_path="${install_path}/${plugin_name}"
 	# case "${version}" in
 	# 	3.[01].* | [012].*)
 	# 		download_url="https://github.com/databus23/helm-diff/releases/download/v${version}/helm-diff-${platform}.tgz" ;;
@@ -257,8 +257,8 @@ install_version() {
 		pushd "${install_path}" >/dev/null || fail "Failed to pushd ${install_path}"
 
 		log "Downloading ${plugin_name} from ${download_url}"
-		curl "${curl_opts[@]}" -C - "${download_url}" | tar zx -O "${ARCHIVE_BIN_PATH}" >"${install_path}/${plugin_name}"
-		chmod +x "${install_path}/${plugin_name}"
+		curl "${curl_opts[@]}" -C - "${download_url}" | tar zx -O "${ARCHIVE_BIN_PATH}" >"${install_path}/${HELM_PLUGIN_NAME}"
+		chmod +x "${install_path}/${HELM_PLUGIN_NAME}"
 		generate_plugin_yaml "$@"
     ln -s . "${release_path}"
 		popd >/dev/null || fail "Failed to popd"
