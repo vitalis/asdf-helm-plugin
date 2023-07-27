@@ -231,8 +231,7 @@ install_version() {
 	local install_type=$2
 	local version=$3
 	local install_path=$4
-	local bin_install_path="${install_path}/bin"
-	local download_url archive_bin_path
+	local download_url archive_bin_path release_path
 
 	if [ "$install_type" != "version" ]; then
 		fail "$plugin_name supports release installs only"
@@ -247,22 +246,23 @@ install_version() {
 	verify_supported
 
 	download_url=$(get_download_url "$@")
+	release_path="${install_path}/release/${plugin_name}"
 	# case "${version}" in
 	# 	3.[01].* | [012].*)
 	# 		download_url="https://github.com/databus23/helm-diff/releases/download/v${version}/helm-diff-${platform}.tgz" ;;
 	# esac
 
 	if ! eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin list" | sed 1d | grep -qs "${HELM_PLUGIN_NAME}"; then
-		mkdir -p "${bin_install_path}"
-		pushd "${bin_install_path}" >/dev/null || fail "Failed to pushd ${bin_install_path}"
+		mkdir -p "${install_path}"
+		pushd "${install_path}" >/dev/null || fail "Failed to pushd ${install_path}"
 
 		log "Downloading ${plugin_name} from ${download_url}"
-		curl "${curl_opts[@]}" -C - "${download_url}" | tar zx -O "${ARCHIVE_BIN_PATH}" >"${bin_install_path}/${plugin_name}"
-		chmod +x "${bin_install_path}/${plugin_name}"
+		curl "${curl_opts[@]}" -C - "${download_url}" | tar zx -O "${ARCHIVE_BIN_PATH}" >"${install_path}/${plugin_name}"
+		chmod +x "${install_path}/${plugin_name}"
 		generate_plugin_yaml "$@"
-    ln -s . "${install_path}/${plugin_name}"
+    ln -s . "${release_path}"
 		popd >/dev/null || fail "Failed to popd"
-		eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin install ${install_path}/${plugin_name}" || fail "Failed installing ${plugin_name}@${version}, rerun with ASDF_HELM_PLUGIN_DEBUG=1 for details"
+		eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin install ${release_path}" || fail "Failed installing ${plugin_name}@${version}, rerun with ASDF_HELM_PLUGIN_DEBUG=1 for details"
 	else
 		fail "${plugin_name} already installed"
 	fi
