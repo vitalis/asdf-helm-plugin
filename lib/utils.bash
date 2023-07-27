@@ -7,10 +7,6 @@ fail() {
 	exit 1
 }
 
-[[ -z ${ASDF_INSTALL_TYPE+x} ]] && fail "ASDF_INSTALL_TYPE is required"
-[[ -z ${ASDF_INSTALL_VERSION+x} ]] && fail "ASDF_INSTALL_VERSION is required"
-[[ -z ${ASDF_INSTALL_PATH+x} ]] && fail "ASDF_INSTALL_PATH is required"
-
 ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH=
 
 if [[ ${ASDF_HELM_PLUGIN_DEBUG:-} -eq 1 ]]; then
