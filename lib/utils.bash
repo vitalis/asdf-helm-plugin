@@ -260,7 +260,7 @@ install_version() {
 		curl "${curl_opts[@]}" -C - "${download_url}" | tar zx -O "${ARCHIVE_BIN_PATH}" >"${bin_install_path}/${plugin_name}"
 		chmod +x "${bin_install_path}/${plugin_name}"
 		generate_plugin_yaml "$@"
-#		ln -s . "${install_path}/${plugin_name}"
+    ln -s "${bin_install_path}" "${install_path}/${plugin_name}"
 		popd >/dev/null || fail "Failed to popd"
 		eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin install ${install_path}/${plugin_name}" || fail "Failed installing ${plugin_name}@${version}, rerun with ASDF_HELM_PLUGIN_DEBUG=1 for details"
 	else
