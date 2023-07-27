@@ -216,9 +216,8 @@ generate_plugin_yaml() {
 	local plugin_name=$1
 	local version=$3
 	local install_path=$4
-	local bin_install_path="${install_path}/bin"
 
-	cat >"${bin_install_path}/plugin.yaml" <<END
+	cat >"${install_path}/plugin.yaml" <<END
 name: "${HELM_PLUGIN_NAME}"
 version: "${version}"
 ignoreFlags: false
@@ -261,7 +260,7 @@ install_version() {
 		curl "${curl_opts[@]}" -C - "${download_url}" | tar zx -O "${ARCHIVE_BIN_PATH}" >"${bin_install_path}/${plugin_name}"
 		chmod +x "${bin_install_path}/${plugin_name}"
 		generate_plugin_yaml "$@"
-    ln -s "${bin_install_path}" "${install_path}/${plugin_name}"
+    ln -s "${install_path}" "${install_path}/${plugin_name}"
 		popd >/dev/null || fail "Failed to popd"
 		eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin install ${install_path}/${plugin_name}" || fail "Failed installing ${plugin_name}@${version}, rerun with ASDF_HELM_PLUGIN_DEBUG=1 for details"
 	else
