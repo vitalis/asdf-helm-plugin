@@ -21,4 +21,6 @@ jobs:
       - uses: asdf-vm/actions/plugin-test@v2
         with:
           plugin: helm-unittest
-          command: helm unittest -h
+          command: |
+            asdf reshim helm
+            helm unittest -h
