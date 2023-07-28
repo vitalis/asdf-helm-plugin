@@ -22,4 +22,4 @@ jobs:
         uses: asdf-vm/actions/plugin-test@v2
         with:
           plugin: helm-unittest
-          command: helm unittest -h
+          command: source "$ASDF_DIR/asdf.sh" && helm unittest -h
