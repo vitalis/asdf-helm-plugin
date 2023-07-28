@@ -222,7 +222,7 @@ name: "${HELM_PLUGIN_NAME}"
 version: "${version}"
 ignoreFlags: false
 useTunnel: true
-command: "${HELM_PLUGIN_NAME}"
+command: "\$HELM_PLUGIN_DIR/bin/${HELM_PLUGIN_NAME}"
 END
 }
 
