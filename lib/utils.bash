@@ -226,6 +226,16 @@ command: "\$HELM_PLUGIN_DIR/bin/${HELM_PLUGIN_NAME}"
 END
 }
 
+# testVersion tests the installed client to make sure it is working.
+test_version() {
+	local plugin_name=$1
+  set +e
+  echo "$plugin_name installed into $HELM_PLUGIN_DIR/$plugin_name"
+  "${HELM_PLUGIN_DIR}/bin/${HELM_PLUGIN_NAME}" -h
+  set -e
+}
+
+
 install_version() {
 	local plugin_name=$1
 	local install_type=$2
@@ -248,15 +258,10 @@ install_version() {
 
 	download_url=$(get_download_url "$@")
 	release_path="${install_path}/${plugin_name}"
-	# case "${version}" in
-	# 	3.[01].* | [012].*)
-	# 		download_url="https://github.com/databus23/helm-diff/releases/download/v${version}/helm-diff-${platform}.tgz" ;;
-	# esac
 
 	if ! eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin list" | sed 1d | grep -qs "${HELM_PLUGIN_NAME}"; then
 		mkdir -p "${bin_install_path}"
 		pushd "${bin_install_path}" >/dev/null || fail "Failed to pushd ${bin_install_path}"
-
 		log "Downloading ${plugin_name} from ${download_url}"
 		curl "${curl_opts[@]}" -C - "${download_url}" | tar zx -O "${ARCHIVE_BIN_PATH}" >"${bin_install_path}/${HELM_PLUGIN_NAME}"
 		chmod +x "${bin_install_path}/${HELM_PLUGIN_NAME}"
@@ -264,6 +269,7 @@ install_version() {
     ln -s "${install_path}" "${release_path}"
 		popd >/dev/null || fail "Failed to popd"
 		eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin install ${release_path}" || fail "Failed installing ${plugin_name}@${version}, rerun with ASDF_HELM_PLUGIN_DEBUG=1 for details"
+		test_version "$plugin_name"
 	else
 		fail "${plugin_name} already installed"
 	fi
