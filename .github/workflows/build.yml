@@ -16,6 +16,7 @@ jobs:
           - macos-latest
     runs-on: ${{ matrix.os }}
     steps:
+      - uses: actions/checkout@v3
       - uses: asdf-vm/actions/install@v2
       - name: asdf_plugin_test
         uses: asdf-vm/actions/plugin-test@v2
