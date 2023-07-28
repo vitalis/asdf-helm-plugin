@@ -14,15 +14,14 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
+        tool:
+          - unittest         
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - uses: asdf-vm/actions/install@v2
       - name: asdf_plugin_test
         run: |
-          asdf plugin add helm-unittest https://github.com/vitalis/asdf-helm-plugin
-          ASDF_HELM_PLUGIN_DEBUG=1 asdf install helm-unittest latest
-        # uses: asdf-vm/actions/plugin-test@v2
-        # with:
-        #   plugin: helm-unittest
-        #   command: unittest -h
+          asdf plugin add helm-${{ matrix.tool }} https://github.com/vitalis/asdf-helm-plugin
+          ASDF_HELM_PLUGIN_DEBUG=1 asdf install helm-${{ matrix.tool }} latest
+          helm ${{ matrix.tool }} -h
