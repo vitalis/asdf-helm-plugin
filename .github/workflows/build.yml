@@ -21,6 +21,5 @@ jobs:
       - name: asdf_plugin_test
         uses: asdf-vm/actions/plugin-test@v2
         with:
-          skip_install: true
           plugin: helm-unittest
           command: unittest -h

@@ -63,37 +63,37 @@ resolve_helm_path() {
 		eval "$(DIRENV_LOG_FORMAT=direnv export bash)"
 	fi
 
-	local helms=()
+	# local helms=()
 
 	local asdf_helm
 	if asdf_helm=$(asdf which helm 2>/dev/null); then
-		helms+=("$asdf_helm")
+		ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH=("$asdf_helm")
 	else
 		local global_helm
 		global_helm=$(which helm)
-		helms+=("$global_helm")
+		ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH=("$global_helm")
 	fi
 
-	for h in "${helms[@]}"; do
-		local helm_version
-		log "Testing '$h' ..."
-		helm_version=$(get_helm_version "$h")
-		if [[ $helm_version =~ ^([0-9]+)\.([0-9]+)\. ]]; then
-			local helm_version_major=${BASH_REMATCH[1]}
-			local helm_version_minor=${BASH_REMATCH[2]}
-			if [ "$helm_version_major" -ge 3 ] && [ "$helm_version_minor" -ge 1 ]; then
-				ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH="$h"
-				break
-			fi
-		else
-			continue
-		fi
-	done
+	# for h in "${helms[@]}"; do
+	# 	local helm_version
+	# 	log "Testing '$h' ..."
+	# 	helm_version=$(get_helm_version "$h")
+	# 	if [[ $helm_version =~ ^([0-9]+)\.([0-9]+)\. ]]; then
+	# 		local helm_version_major=${BASH_REMATCH[1]}
+	# 		local helm_version_minor=${BASH_REMATCH[2]}
+	# 		if [ "$helm_version_major" -ge 3 ] && [ "$helm_version_minor" -ge 1 ]; then
+	# 			ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH="$h"
+	# 			break
+	# 		fi
+	# 	else
+	# 		continue
+	# 	fi
+	# done
 
 	popd >/dev/null || fail "Failed to popd"
 
 	if [ -z "$ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH" ]; then
-		fail "Failed to find helm >= 3.1"
+		fail "Failed to find helm"
 	else
 		log "Using helm at '$ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH'"
 	fi
