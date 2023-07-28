@@ -99,7 +99,7 @@ resolve_helm_path() {
 	fi
 }
 
-[ -z "$HELM_HOME" ] && HELM_HOME=$(eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} env" | grep 'HELM_DATA_HOME' | cut -d '=' -f2 | tr -d '"')
+HELM_HOME=$(eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} env" | grep 'HELM_DATA_HOME' | cut -d '=' -f2 | tr -d '"')
 
 if ! type "curl" >/dev/null 2>&1; then
 	fail "curl is required"
