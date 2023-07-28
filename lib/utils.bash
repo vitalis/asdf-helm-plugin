@@ -95,7 +95,6 @@ resolve_helm_path() {
 	if [ -z "$ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH" ]; then
 		fail "Failed to find helm >= 3.1"
 	else
-		HELM_HOME=$(eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} env" | grep 'HELM_DATA_HOME' | cut -d '=' -f2 | tr -d '"')
 		log "Using helm at '$ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH'"
 	fi
 }
@@ -228,15 +227,6 @@ command: "\$HELM_PLUGIN_DIR/bin/${HELM_PLUGIN_NAME}"
 END
 }
 
-test_version() {
-	local plugin_name=$1
-	local helm_plugin_dir="$HELM_HOME/plugins/$plugin_name"
-
-  log "$plugin_name installed into $helm_plugin_dir"
-  eval "${helm_plugin_dir}/bin/${HELM_PLUGIN_NAME} -h"
-}
-
-
 install_version() {
 	local plugin_name=$1
 	local install_type=$2
@@ -270,9 +260,16 @@ install_version() {
     ln -s "${install_path}" "${release_path}"
 		popd >/dev/null || fail "Failed to popd"
 		eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin install ${release_path}" || fail "Failed installing ${plugin_name}@${version}, rerun with ASDF_HELM_PLUGIN_DEBUG=1 for details"
-		test_version "$plugin_name"
 	else
 		fail "${plugin_name} already installed"
 	fi
 
+}
+
+uninstall_version() {
+	local plugin_name=$1
+	local install_path=$2
+
+	eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin uninstall ${plugin_name}" || fail "Failed uninstalling ${plugin_name}, rerun with ASDF_HELM_PLUGIN_DEBUG=1 for details"
+	rm -rf "$install_path"
 }
