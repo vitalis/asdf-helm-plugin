@@ -95,11 +95,11 @@ resolve_helm_path() {
 	if [ -z "$ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH" ]; then
 		fail "Failed to find helm >= 3.1"
 	else
+		HELM_HOME=$(eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} env" | grep 'HELM_DATA_HOME' | cut -d '=' -f2 | tr -d '"')
 		log "Using helm at '$ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH'"
 	fi
 }
 
-HELM_HOME=$(eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} env" | grep 'HELM_DATA_HOME' | cut -d '=' -f2 | tr -d '"')
 
 if ! type "curl" >/dev/null 2>&1; then
 	fail "curl is required"
