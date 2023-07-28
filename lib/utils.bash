@@ -228,14 +228,12 @@ command: "\$HELM_PLUGIN_DIR/bin/${HELM_PLUGIN_NAME}"
 END
 }
 
-# testVersion tests the installed client to make sure it is working.
 test_version() {
 	local plugin_name=$1
-	: "${HELM_PLUGIN_DIR:="$HELM_HOME/plugins/$plugin_name"}"
-  set +e
-  echo "$plugin_name installed into $HELM_PLUGIN_DIR"
-  "${HELM_PLUGIN_DIR}/bin/${HELM_PLUGIN_NAME}" -h
-  set -e
+	local helm_plugin_dir="$HELM_HOME/plugins/$plugin_name"
+
+  log "$plugin_name installed into $helm_plugin_dir"
+  eval "${helm_plugin_dir}/bin/${HELM_PLUGIN_NAME} -h"
 }
 
 
