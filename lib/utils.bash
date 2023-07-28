@@ -63,8 +63,6 @@ resolve_helm_path() {
 		eval "$(DIRENV_LOG_FORMAT=direnv export bash)"
 	fi
 
-	# local helms=()
-
 	local asdf_helm
 	if asdf_helm=$(asdf which helm 2>/dev/null); then
 		ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH=("$asdf_helm")
@@ -73,22 +71,6 @@ resolve_helm_path() {
 		global_helm=$(which helm)
 		ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH=("$global_helm")
 	fi
-
-	# for h in "${helms[@]}"; do
-	# 	local helm_version
-	# 	log "Testing '$h' ..."
-	# 	helm_version=$(get_helm_version "$h")
-	# 	if [[ $helm_version =~ ^([0-9]+)\.([0-9]+)\. ]]; then
-	# 		local helm_version_major=${BASH_REMATCH[1]}
-	# 		local helm_version_minor=${BASH_REMATCH[2]}
-	# 		if [ "$helm_version_major" -ge 3 ] && [ "$helm_version_minor" -ge 1 ]; then
-	# 			ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH="$h"
-	# 			break
-	# 		fi
-	# 	else
-	# 		continue
-	# 	fi
-	# done
 
 	popd >/dev/null || fail "Failed to popd"
 
@@ -195,7 +177,7 @@ verify_supported() {
 
 default_download_url() {
 	local plugin_name=$1
-	local version=$3
+	local version=$2
 	local scheme
 
 	scheme="release_url_scheme_$SANITIZED_NAME"
@@ -226,14 +208,51 @@ command: "\$HELM_PLUGIN_DIR/bin/${HELM_PLUGIN_NAME}"
 END
 }
 
+plugin_version_is_installed() {
+	local version=$1
+	eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin list" | sed 1d | grep -qs "${HELM_PLUGIN_NAME}" | grep -sq "${version}"
+}
+
+plugin_is_installed() {
+	eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin list" | sed 1d | grep -qs "${HELM_PLUGIN_NAME}"
+}
+
+install_plugin_version() {
+	local plugin_name=$1
+	local version=$2
+	local install_path=$3
+
+	local bin_install_path="${install_path}/bin"
+	local download_url release_path
+
+	download_url=$(get_download_url "$@")
+	release_path="${install_path}/${plugin_name}"
+
+	mkdir -p "${bin_install_path}"
+	pushd "${bin_install_path}" >/dev/null || fail "Failed to pushd ${bin_install_path}"
+	log "Downloading ${plugin_name} from ${download_url}"
+	curl "${curl_opts[@]}" -C - "${download_url}" | tar zx -O "${ARCHIVE_BIN_PATH}" >"${bin_install_path}/${HELM_PLUGIN_NAME}"
+	chmod +x "${bin_install_path}/${HELM_PLUGIN_NAME}"
+	generate_plugin_yaml "$@"
+	ln -s "${install_path}" "${release_path}"
+	popd >/dev/null || fail "Failed to popd"
+	eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin install ${release_path}" || fail "Failed installing ${plugin_name}@${version}, rerun with ASDF_HELM_PLUGIN_DEBUG=1 for details"
+}
+
+update_plugin_version() {
+	local plugin_name=$1
+	local version=$2
+	local install_path=$3
+
+	uninstall_version "$plugin_name" "$install_path"
+	install_plugin_version "$plugin_name" "$version" "$install_path"
+}
+
 install_version() {
 	local plugin_name=$1
 	local install_type=$2
 	local version=$3
 	local install_path=$4
-	local bin_install_path="${install_path}/bin"
-	local download_url archive_bin_path release_path
-
 	if [ "$install_type" != "version" ]; then
 		fail "$plugin_name supports release installs only"
 	fi
@@ -246,23 +265,13 @@ install_version() {
 	set_os
 	verify_supported
 
-	download_url=$(get_download_url "$@")
-	release_path="${install_path}/${plugin_name}"
-
-	if ! eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin list" | sed 1d | grep -qs "${HELM_PLUGIN_NAME}"; then
-		mkdir -p "${bin_install_path}"
-		pushd "${bin_install_path}" >/dev/null || fail "Failed to pushd ${bin_install_path}"
-		log "Downloading ${plugin_name} from ${download_url}"
-		curl "${curl_opts[@]}" -C - "${download_url}" | tar zx -O "${ARCHIVE_BIN_PATH}" >"${bin_install_path}/${HELM_PLUGIN_NAME}"
-		chmod +x "${bin_install_path}/${HELM_PLUGIN_NAME}"
-		generate_plugin_yaml "$@"
-		ln -s "${install_path}" "${release_path}"
-		popd >/dev/null || fail "Failed to popd"
-		eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin install ${release_path}" || fail "Failed installing ${plugin_name}@${version}, rerun with ASDF_HELM_PLUGIN_DEBUG=1 for details"
+	if plugin_version_is_installed "$version"; then
+		fail "$plugin_name $version is already installed"
+	elif plugin_is_installed; then
+		update_plugin_version "$plugin_name" "$version" "$install_path"
 	else
-		fail "${plugin_name} already installed"
+		install_plugin_version "$plugin_name" "$version" "$install_path"
 	fi
-
 }
 
 uninstall_version() {
