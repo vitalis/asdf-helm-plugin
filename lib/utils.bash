@@ -271,7 +271,8 @@ uninstall_version() {
 	local install_path=$2
 
 	resolve_helm_path
+	set_helm_plugin_name "$plugin_name"
 
-	eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin uninstall ${plugin_name}" || fail "Failed uninstalling ${plugin_name}, rerun with ASDF_HELM_PLUGIN_DEBUG=1 for details"
+	eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin uninstall ${HELM_PLUGIN_NAME}" || fail "Failed uninstalling ${HELM_PLUGIN_NAME}, rerun with ASDF_HELM_PLUGIN_DEBUG=1 for details"
 	rm -rf "$install_path"
 }
