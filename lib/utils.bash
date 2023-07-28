@@ -196,8 +196,8 @@ set_helm_plugin_name() {
 
 generate_plugin_yaml() {
 	local plugin_name=$1
-	local version=$3
-	local install_path=$4
+	local version=$2
+	local install_path=$3
 
 	cat >"${install_path}/plugin.yaml" <<END
 name: "${HELM_PLUGIN_NAME}"
