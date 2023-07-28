@@ -16,10 +16,6 @@ jobs:
           - macos-latest
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: asdf-vm/actions/install@v2
-        with:
-          plugins: helm
       - uses: asdf-vm/actions/plugin-test@v2
         with:
           plugin: helm-unittest
