@@ -99,7 +99,6 @@ resolve_helm_path() {
 	fi
 }
 
-
 if ! type "curl" >/dev/null 2>&1; then
 	fail "curl is required"
 fi
@@ -257,7 +256,7 @@ install_version() {
 		curl "${curl_opts[@]}" -C - "${download_url}" | tar zx -O "${ARCHIVE_BIN_PATH}" >"${bin_install_path}/${HELM_PLUGIN_NAME}"
 		chmod +x "${bin_install_path}/${HELM_PLUGIN_NAME}"
 		generate_plugin_yaml "$@"
-    ln -s "${install_path}" "${release_path}"
+		ln -s "${install_path}" "${release_path}"
 		popd >/dev/null || fail "Failed to popd"
 		eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} plugin install ${release_path}" || fail "Failed installing ${plugin_name}@${version}, rerun with ASDF_HELM_PLUGIN_DEBUG=1 for details"
 	else
