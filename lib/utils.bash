@@ -81,7 +81,7 @@ resolve_helm_path() {
 		if [[ $helm_version =~ ^([0-9]+)\.([0-9]+)\. ]]; then
 			local helm_version_major=${BASH_REMATCH[1]}
 			local helm_version_minor=${BASH_REMATCH[2]}
-			if [ "$helm_version_major" -ge 3 ] && [ "$helm_version_minor" -ge 10 ]; then
+			if [ "$helm_version_major" -ge 3 ] && [ "$helm_version_minor" -ge 1 ]; then
 				ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH="$h"
 				break
 			fi
@@ -93,11 +93,13 @@ resolve_helm_path() {
 	popd >/dev/null || fail "Failed to popd"
 
 	if [ -z "$ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH" ]; then
-		fail "Failed to find helm >= 3.10"
+		fail "Failed to find helm >= 3.1"
 	else
 		log "Using helm at '$ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH'"
 	fi
 }
+
+[ -z "$HELM_HOME" ] && HELM_HOME=$(eval "${ASDF_HELM_PLUGIN_RESOLVED_HELM_PATH} env" | grep 'HELM_DATA_HOME' | cut -d '=' -f2 | tr -d '"')
 
 if ! type "curl" >/dev/null 2>&1; then
 	fail "curl is required"
@@ -229,8 +231,9 @@ END
 # testVersion tests the installed client to make sure it is working.
 test_version() {
 	local plugin_name=$1
+	: "${HELM_PLUGIN_DIR:="$HELM_HOME/plugins/$plugin_name"}"
   set +e
-  echo "$plugin_name installed into $HELM_PLUGIN_DIR/$plugin_name"
+  echo "$plugin_name installed into $HELM_PLUGIN_DIR"
   "${HELM_PLUGIN_DIR}/bin/${HELM_PLUGIN_NAME}" -h
   set -e
 }
